@@ -1,0 +1,34 @@
+{
+  "actualizado": "2026-08-08",
+  "kit": "kit-2026-08-07",
+  "paneles": [
+    {
+      "id": "com.roomcurves.cep",
+      "nombre": "Room Curves",
+      "version": "1.0.2",
+      "windows": "https://github.com/Zurisaitobi/the-edit-room/releases/download/kit-2026-08-07/Room_Curves_Windows.zip",
+      "mac": "https://github.com/Zurisaitobi/the-edit-room/releases/download/kit-2026-08-07/Room_Curves_Mac.zip"
+    },
+    {
+      "id": "com.roomtrack.panel",
+      "nombre": "Room Tracker",
+      "version": "0.56.0",
+      "windows": "https://github.com/Zurisaitobi/the-edit-room/releases/download/kit-2026-08-07/Room_Tracker_Windows.zip",
+      "mac": "https://github.com/Zurisaitobi/the-edit-room/releases/download/kit-2026-08-07/Room_Tracker_Mac.zip"
+    },
+    {
+      "id": "com.roommarkers.panel",
+      "nombre": "Room Markers",
+      "version": "1.22.0",
+      "windows": "https://github.com/Zurisaitobi/the-edit-room/releases/download/kit-2026-08-07/Room_Markers_Windows.zip",
+      "mac": "https://github.com/Zurisaitobi/the-edit-room/releases/download/kit-2026-08-07/Room_Markers_Mac.zip"
+    },
+    {
+      "id": "com.roomsync.panel",
+      "nombre": "Room Sync",
+      "version": "1.47.0",
+      "windows": "https://github.com/Zurisaitobi/the-edit-room/releases/download/kit-2026-08-07/Room_Sync_Windows.zip",
+      "mac": "https://github.com/Zurisaitobi/the-edit-room/releases/download/kit-2026-08-07/Room_Sync_Mac.zip"
+    }
+  ]
+}

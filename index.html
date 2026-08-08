@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Edit Room · instalación</title><style>
+:root{--rr-bg:#141414;--rr-panel:#1a1a1a;--rr-line:#343434;--rr-line-soft:#2a2a2a;--rr-txt:#eaeaea;--rr-txt-bright:#fff;--rr-mute:#8f8f8f;--rr-faint:#6a6a6a;--rr-accent:#ba0000;--rr-accent-h:#950000;--rr-mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;--rr-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:#0d0d0d;color:var(--rr-txt);font-family:var(--rr-sans);font-size:12px;padding:34px 20px 46px}
+.wrap{max-width:820px;margin:0 auto}
+.suitehead{display:flex;align-items:center;gap:13px;margin-bottom:6px}
+.suitemark{display:flex;flex-direction:column;gap:3.5px;width:30px;flex:0 0 30px}
+.suitemark span{height:5px;border-radius:2px;background:var(--rr-accent);display:block}
+.suitemark span:nth-child(1){width:100%}.suitemark span:nth-child(2){width:70%;opacity:.72}.suitemark span:nth-child(3){width:45%;opacity:.45}
+.suitehead h1{margin:0;font-size:19px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--rr-txt-bright)}
+.suitehead h1 b{color:var(--rr-accent);font-weight:800}
+.suitesub{color:var(--rr-faint);font-size:11px;margin:0 0 26px 43px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}@media(max-width:640px){.grid{grid-template-columns:1fr}}
+.card{background:var(--rr-bg);border:1px solid var(--rr-line-soft);border-radius:10px;padding:14px 15px;display:flex;flex-direction:column;gap:12px;position:relative}
+.ver{position:absolute;top:12px;right:13px;font-family:var(--rr-mono);font-size:9px;color:var(--rr-faint);border:1px solid var(--rr-line-soft);border-radius:4px;padding:2px 6px}
+.room-head{display:flex;align-items:center;gap:10px}
+.room-mark{flex:0 0 auto;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:var(--rr-accent)}
+.room-mark svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.room-title{margin:0 0 1px;font-size:12.5px;font-weight:700;letter-spacing:.055em;text-transform:uppercase;color:var(--rr-txt-bright);line-height:1.1}
+.room-title .room-room{color:var(--rr-accent)}
+.room-sub{margin:0;font-size:10px;color:var(--rr-faint);line-height:1.25}
+.dl{display:flex;gap:8px;margin-top:auto}
+a.btn{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;padding:8px 6px;border-radius:6px;border:1px solid var(--rr-line);color:var(--rr-mute);font-size:10.5px;font-weight:600;background:var(--rr-panel);transition:all .13s}
+a.btn:hover{color:var(--rr-txt-bright);border-color:var(--rr-accent);background:#201313}
+a.btn svg{width:13px;height:13px;fill:currentColor}a.btn .cmd{font-size:13.5px;line-height:1;font-weight:400}
+a.btn small{color:var(--rr-faint);font-weight:400;font-size:9px;margin-left:2px}
+.allwrap{margin-top:26px;background:var(--rr-bg);border:1px solid var(--rr-line-soft);border-radius:10px;padding:18px}
+.allhead{font-size:11px;font-weight:600;color:var(--rr-mute);padding-left:10px;border-left:3px solid var(--rr-accent);margin-bottom:5px;text-transform:uppercase;letter-spacing:.07em}
+.allsub{color:var(--rr-faint);font-size:10.5px;margin:0 0 14px 13px}
+.allbtns{display:flex;gap:12px}@media(max-width:640px){.allbtns{flex-direction:column}}
+a.big{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;padding:13px 10px;border-radius:8px;font-size:12.5px;font-weight:700;background:linear-gradient(var(--rr-accent),var(--rr-accent-h));color:#fff;transition:filter .13s}
+a.big:hover{filter:brightness(1.12)}a.big svg{width:16px;height:16px;fill:currentColor}
+a.big .cmd{font-size:17px;line-height:1;font-weight:400}a.big small{font-weight:400;opacity:.75;font-size:10px}
+.foot{margin-top:20px;color:var(--rr-faint);font-size:10px;line-height:1.6}.foot b{color:var(--rr-mute)}
+</style></head><body><div class="wrap">
+<div class="suitehead"><span class="suitemark"><span></span><span></span><span></span></span><h1>The <b>Edit</b> Room</h1></div>
+<p class="suitesub">Suite de paneles para Premiere Pro · instalación por Room o completa</p>
+<div class="grid">
+    <div class="card"><span class="ver">v1.0.2</span>
+      <div class="room-head">
+        <span class="room-mark"><svg viewBox="0 0 24 24"><path d="M4 19 C 9 19, 8 5, 20 5"/><circle cx="4" cy="19" r="1.6"/><circle cx="20" cy="5" r="1.6"/></svg></span>
+        <span><h2 class="room-title"><span class="room-room">Room</span> Curves</h2>
+        <p class="room-sub">Curvas de velocidad · The Edit Room</p></span>
+      </div>
+      <div class="dl">
+        <a class="btn" href="Rooms_Individuales/Windows/Room_Curves_Windows.zip" download><svg viewBox="0 0 24 24"><path d="M3 5.5 10.5 4.4v7.1H3zM11.5 4.25 21 3v8.5h-9.5zM3 12.5h7.5v7.1L3 18.5zM11.5 12.5H21V21l-9.5-1.35z"/></svg>Windows</a>
+        <a class="btn" href="Rooms_Individuales/Mac/Room_Curves_Mac.zip" download><span class="cmd">&#8984;</span>Mac</a>
+      </div>
+    </div>
+    <div class="card"><span class="ver">v0.56.0</span>
+      <div class="room-head">
+        <span class="room-mark"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.6"/><line x1="12" y1="2.5" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="21.5"/><line x1="2.5" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="21.5" y2="12"/></svg></span>
+        <span><h2 class="room-title"><span class="room-room">Room</span> Tracker</h2>
+        <p class="room-sub">Tracking de movimiento · The Edit Room</p></span>
+      </div>
+      <div class="dl">
+        <a class="btn" href="Rooms_Individuales/Windows/Room_Tracker_Windows.zip" download><svg viewBox="0 0 24 24"><path d="M3 5.5 10.5 4.4v7.1H3zM11.5 4.25 21 3v8.5h-9.5zM3 12.5h7.5v7.1L3 18.5zM11.5 12.5H21V21l-9.5-1.35z"/></svg>Windows<small>30 MB</small></a>
+        <a class="btn" href="Rooms_Individuales/Mac/Room_Tracker_Mac.zip" download><span class="cmd">&#8984;</span>Mac<small>28 MB · ffmpeg dentro</small></a>
+      </div>
+    </div>
+    <div class="card"><span class="ver">v1.22.0</span>
+      <div class="room-head">
+        <span class="room-mark"><svg viewBox="0 0 24 24"><path d="M6 4 L18 4 L18 20 L12 15.5 L6 20 Z"/></svg></span>
+        <span><h2 class="room-title"><span class="room-room">Room</span> Markers</h2>
+        <p class="room-sub">Marcadores, beats y control de calidad · The Edit Room</p></span>
+      </div>
+      <div class="dl">
+        <a class="btn" href="Rooms_Individuales/Windows/Room_Markers_Windows.zip" download><svg viewBox="0 0 24 24"><path d="M3 5.5 10.5 4.4v7.1H3zM11.5 4.25 21 3v8.5h-9.5zM3 12.5h7.5v7.1L3 18.5zM11.5 12.5H21V21l-9.5-1.35z"/></svg>Windows</a>
+        <a class="btn" href="Rooms_Individuales/Mac/Room_Markers_Mac.zip" download><span class="cmd">&#8984;</span>Mac</a>
+      </div>
+    </div>
+    <div class="card"><span class="ver">v1.47.0</span>
+      <div class="room-head">
+        <span class="room-mark"><svg viewBox="0 0 24 24"><path d="M4 13 A 8 8 0 0 1 18 8"/><path d="M18 5 L18 8 L15 8"/><path d="M20 11 A 8 8 0 0 1 6 16"/><path d="M6 19 L6 16 L9 16"/></svg></span>
+        <span><h2 class="room-title"><span class="room-room">Room</span> Sync</h2>
+        <p class="room-sub">Sincronizador de audio · The Edit Room</p></span>
+      </div>
+      <div class="dl">
+        <a class="btn" href="Rooms_Individuales/Windows/Room_Sync_Windows.zip" download><svg viewBox="0 0 24 24"><path d="M3 5.5 10.5 4.4v7.1H3zM11.5 4.25 21 3v8.5h-9.5zM3 12.5h7.5v7.1L3 18.5zM11.5 12.5H21V21l-9.5-1.35z"/></svg>Windows<small>30 MB</small></a>
+        <a class="btn" href="Rooms_Individuales/Mac/Room_Sync_Mac.zip" download><span class="cmd">&#8984;</span>Mac<small>ffmpeg automático*</small></a>
+      </div>
+    </div>
+</div>
+<div class="allwrap">
+  <div class="allhead">Suite completa · los 4 de una vez</div>
+  <p class="allsub">Un solo archivo con los 4 Rooms dentro: durante la instalación eliges cuáles (o todos), y detecta las versiones que ya tienes. Windows: .exe con asistente y desinstalador. Mac: .command autoextraíble con ffmpeg incluido.</p>
+  <div class="allbtns">
+    <a class="big" href="Instalador_Completo/TheEditRoom_Setup_Windows.exe" download><svg viewBox="0 0 24 24"><path d="M3 5.5 10.5 4.4v7.1H3zM11.5 4.25 21 3v8.5h-9.5zM3 12.5h7.5v7.1L3 18.5zM11.5 12.5H21V21l-9.5-1.35z"/></svg> Instalador único · Windows <small>.exe · 23 MB</small></a>
+    <a class="big" href="Instalador_Completo/TheEditRoom_Instalador_Mac.zip" download><span class="cmd">&#8984;</span> Instalador único · Mac <small>28 MB · ffmpeg dentro</small></a>
+  </div>
+</div>
+<p class="foot">Tras instalar, reinicia Premiere Pro por completo y abre <b>Ventana › Extensiones</b>. En Mac, la primera vez: clic derecho sobre el <b>.command</b> › Abrir › Abrir.<br>
+<b>Beta:</b> los cuatro paneles llevan un botón <b>«enviar informe»</b> junto al registro: describe el problema, revisa lo que se envía y pulsa enviar.<br>
+* <b>ffmpeg</b>: solo Room Sync y Room Tracker lo usan. En Windows va incluido. En Mac, Room Tracker incluye el binario (arm64) y Room Sync lo encuentra solo. No hay que hacer nada a mano.</p>
+</div></body></html>
