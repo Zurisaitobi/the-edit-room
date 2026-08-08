@@ -1,0 +1,135 @@
+# ---------------------------------------------------------------------------
+# Compila el ffmpeg que reparten Room Tracker y Room Sync.
+#
+# Por qué compilarlo nosotros y no bajar uno hecho:
+#   · El que se repartía era un "essentials build" de gyan.dev con
+#     --enable-gpl --enable-version3, o sea GPLv3, y arrastraba x264, x265,
+#     AV1, NVENC y medio mundo: 84 MB de códecs de vídeo que los paneles no usan.
+#   · Aquí NO se activa ninguna biblioteca externa (--disable-autodetect y
+#     ningún --enable-lib*), así que el resultado es ffmpeg puro: LGPL 2.1+.
+#   · Al compilarlo nosotros, el "código fuente correspondiente" que exige la
+#     LGPL es simplemente la versión de FFmpeg que se indica abajo.
+#
+# Qué usan los paneles de verdad (medido sobre el código, agosto 2026):
+#   Room Sync    -> decodifica audio, -ac/-ar (swresample), -af highpass,
+#                   y escribe PCM crudo:  -f f32le -acodec pcm_f32le
+#   Room Tracker -> decodifica vídeo, -vf fps=..,scale=.., y escribe JPEG:
+#                   -q:v 2 f_%04d.jpg  (codificador mjpeg nativo)
+#
+# Por eso se conservan TODOS los decodificadores y demuxores nativos —quitar a
+# mano los que "no hacen falta" es la forma segura de que un día un .mxf raro no
+# cargue— y en cambio se recortan los codificadores, que sí están enumerados.
+# ---------------------------------------------------------------------------
+name: ffmpeg (LGPL, mínimo)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Etiqueta de FFmpeg a compilar (p. ej. n7.1.1)"
+        required: true
+        default: "n7.1.1"
+
+permissions:
+  contents: read
+
+env:
+  # Sin bibliotecas externas => LGPL 2.1+. Sin --enable-gpl ni --enable-version3.
+  FF_CONFIG: >-
+    --disable-autodetect
+    --disable-doc
+    --disable-debug
+    --disable-network
+    --disable-ffplay
+    --disable-ffprobe
+    --disable-encoders
+    --enable-encoder=mjpeg,png,pcm_f32le,pcm_s16le,pcm_s24le,rawvideo
+    --enable-static
+    --disable-shared
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            git make pkgconf diffutils yasm nasm
+            mingw-w64-x86_64-gcc
+
+      - name: Descargar FFmpeg
+        run: git clone --depth 1 --branch "${{ inputs.version }}" https://github.com/FFmpeg/FFmpeg.git ff
+
+      - name: Configurar
+        run: cd ff && ./configure --prefix=/mingw64 $FF_CONFIG --extra-ldflags="-static"
+
+      - name: Comprobar que NO ha quedado nada GPL
+        run: |
+          cd ff
+          if grep -qE '^CONFIG_(GPL|NONFREE|VERSION3)=yes' ffbuild/config.mak; then
+            echo "ERROR: la configuración ha activado GPL/version3/nonfree"; exit 1
+          fi
+          echo "OK: build LGPL, sin componentes GPL"
+
+      - name: Compilar
+        run: cd ff && make -j$(nproc)
+
+      - name: Recortar y comprobar
+        run: |
+          cd ff
+          strip ffmpeg.exe
+          ls -lh ffmpeg.exe
+          ./ffmpeg.exe -hide_banner -version | head -3
+          # el binario no debe declararse GPL
+          ./ffmpeg.exe -hide_banner -version | grep -q -- "--enable-gpl" && { echo "ERROR: sigue siendo GPL"; exit 1; }
+          echo "OK"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-windows-x64
+          path: |
+            ff/ffmpeg.exe
+            ff/COPYING.LGPLv2.1
+
+  macos-arm64:
+    runs-on: macos-14        # runner nativo Apple Silicon
+    steps:
+      - name: Herramientas
+        run: brew install nasm
+
+      - name: Descargar FFmpeg
+        run: git clone --depth 1 --branch "${{ inputs.version }}" https://github.com/FFmpeg/FFmpeg.git ff
+
+      - name: Configurar
+        run: cd ff && ./configure $FF_CONFIG --arch=arm64 --enable-cross-compile=no
+
+      - name: Comprobar que NO ha quedado nada GPL
+        run: |
+          cd ff
+          if grep -qE '^CONFIG_(GPL|NONFREE|VERSION3)=yes' ffbuild/config.mak; then
+            echo "ERROR: la configuración ha activado GPL/version3/nonfree"; exit 1
+          fi
+          echo "OK: build LGPL, sin componentes GPL"
+
+      - name: Compilar
+        run: cd ff && make -j$(sysctl -n hw.ncpu)
+
+      - name: Recortar y comprobar
+        run: |
+          cd ff
+          strip ffmpeg
+          ls -lh ffmpeg
+          file ffmpeg
+          ./ffmpeg -hide_banner -version | head -3
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-macos-arm64
+          path: |
+            ff/ffmpeg
+            ff/COPYING.LGPLv2.1
