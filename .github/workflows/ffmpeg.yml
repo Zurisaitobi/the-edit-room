@@ -106,7 +106,9 @@ jobs:
         run: git clone --depth 1 --branch "${{ inputs.version }}" https://github.com/FFmpeg/FFmpeg.git ff
 
       - name: Configurar
-        run: cd ff && ./configure $FF_CONFIG --arch=arm64 --enable-cross-compile=no
+        # El runner macos-14 ya es arm64 nativo: configure lo detecta solo.
+        # (No poner --enable-cross-compile=no: no es una opción válida y aborta.)
+        run: cd ff && ./configure $FF_CONFIG
 
       - name: Comprobar que NO ha quedado nada GPL
         run: |
