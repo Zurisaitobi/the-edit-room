@@ -22,6 +22,26 @@ Vive en repositorios privados aparte, no aquí:
 3. Actualizar `versions.json` con las versiones y las URLs de esa Release.
 4. `git push`.
 
+## ESTE REPOSITORIO TIENE QUE SEGUIR SIENDO PÚBLICO
+
+No es una preferencia: es una **obligación legal**.
+
+Room Tracker y Room Sync distribuyen un binario de FFmpeg compilado con
+`.github/workflows/ffmpeg.yml`. Ese binario es **LGPL 2.1**, y la LGPL obliga a
+poner a disposición del usuario el código fuente correspondiente y los
+parámetros exactos de compilación. Los avisos legales que viajan dentro de los
+dos paneles (`LICENCIAS.txt`) apuntan literalmente a este repositorio:
+
+    https://github.com/Zurisaitobi/the-edit-room/blob/main/.github/workflows/ffmpeg.yml
+    https://github.com/FFmpeg/FFmpeg/tree/n7.1.1
+
+**Si este repositorio pasa a privado, esos enlaces dejan de responder para los
+clientes y se incumple la licencia.** Los cuatro repositorios del código de los
+paneles sí son privados, y deben seguir siéndolo; este no.
+
+Lo mismo vale para borrar el workflow o reescribir su historial: tiene que poder
+consultarse la receta con la que se compiló el binario que se está repartiendo.
+
 ## Aviso
 
 `versions.json` tiene que reflejar **lo que hay realmente publicado en Releases**, no lo último
