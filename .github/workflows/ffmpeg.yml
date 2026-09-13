@@ -29,6 +29,12 @@ on:
         description: "Etiqueta de FFmpeg a compilar (p. ej. n7.1.1)"
         required: true
         default: "n7.1.1"
+      plataforma:
+        description: "Qué compilar"
+        required: true
+        default: "todas"
+        type: choice
+        options: [todas, mac, windows]
 
 permissions:
   contents: read
@@ -49,6 +55,7 @@ env:
 
 jobs:
   windows:
+    if: ${{ inputs.plataforma != 'mac' }}
     runs-on: windows-latest
     defaults:
       run:
@@ -96,8 +103,28 @@ jobs:
             ff/ffmpeg.exe
             ff/COPYING.LGPLv2.1
 
-  macos-arm64:
-    runs-on: macos-14        # runner nativo Apple Silicon
+  # -------------------------------------------------------------------------
+  # macOS UNIVERSAL (Apple Silicon + Intel), macOS 11 como mínimo.
+  #
+  # Por qué (13 de septiembre de 2026): el binario anterior salía del runner
+  # macos-14 sin fijar versión mínima, así que heredaba la del SDK. Leída su
+  # cabecera Mach-O: solo arm64 y macOS 14 Sonoma como mínimo. En un Mac Intel,
+  # o en uno Apple Silicon con Ventura o anterior, Tracker, Markers y Sync se
+  # quedaban sin ffmpeg. macOS 11 Big Sur es el primero que corre en Apple
+  # Silicon, así que con esto vale para prácticamente cualquier Mac.
+  #
+  # Se compila dos veces —arm64 nativo y x86_64 cruzado desde el mismo runner,
+  # porque los runners Intel de GitHub ya no están disponibles— y se juntan con
+  # lipo en un solo archivo. Cada mitad se comprueba por separado.
+  #
+  # Tiene que ser la MISMA etiqueta que Windows (n7.1.1): los avisos legales de
+  # los paneles citan esa etiqueta como código fuente correspondiente.
+  # -------------------------------------------------------------------------
+  macos-universal:
+    if: ${{ inputs.plataforma != 'windows' }}
+    runs-on: macos-14
+    env:
+      MACOSX_DEPLOYMENT_TARGET: "11.0"
     steps:
       - name: Herramientas
         run: brew install nasm
@@ -105,33 +132,96 @@ jobs:
       - name: Descargar FFmpeg
         run: git clone --depth 1 --branch "${{ inputs.version }}" https://github.com/FFmpeg/FFmpeg.git ff
 
-      - name: Configurar
-        # El runner macos-14 ya es arm64 nativo: configure lo detecta solo.
-        # (No poner --enable-cross-compile=no: no es una opción válida y aborta.)
-        run: cd ff && ./configure $FF_CONFIG
-
-      - name: Comprobar que NO ha quedado nada GPL
+      - name: Compilar arm64
         run: |
-          cd ff
+          cp -R ff ff-arm64 && cd ff-arm64
+          ./configure $FF_CONFIG --arch=arm64 --cc="clang -arch arm64" \
+            --extra-cflags="-mmacosx-version-min=11.0" \
+            --extra-ldflags="-mmacosx-version-min=11.0"
           if grep -qE '^CONFIG_(GPL|NONFREE|VERSION3)=yes' ffbuild/config.mak; then
-            echo "ERROR: la configuración ha activado GPL/version3/nonfree"; exit 1
+            echo "ERROR: arm64 ha activado GPL/version3/nonfree"; exit 1
           fi
-          echo "OK: build LGPL, sin componentes GPL"
-
-      - name: Compilar
-        run: cd ff && make -j$(sysctl -n hw.ncpu)
-
-      - name: Recortar y comprobar
-        run: |
-          cd ff
+          make -j$(sysctl -n hw.ncpu)
           strip ffmpeg
-          ls -lh ffmpeg
-          file ffmpeg
+
+      - name: Compilar x86_64 (cruzado)
+        run: |
+          cp -R ff ff-x86 && cd ff-x86
+          ./configure $FF_CONFIG --arch=x86_64 --target-os=darwin --enable-cross-compile \
+            --cc="clang -arch x86_64" \
+            --extra-cflags="-mmacosx-version-min=11.0" \
+            --extra-ldflags="-mmacosx-version-min=11.0"
+          if grep -qE '^CONFIG_(GPL|NONFREE|VERSION3)=yes' ffbuild/config.mak; then
+            echo "ERROR: x86_64 ha activado GPL/version3/nonfree"; exit 1
+          fi
+          make -j$(sysctl -n hw.ncpu)
+          strip ffmpeg
+
+      - name: Unir en binario universal
+        run: |
+          mkdir -p out
+          lipo -create -output out/ffmpeg ff-arm64/ffmpeg ff-x86/ffmpeg
+          cp ff/COPYING.LGPLv2.1 out/
+          ls -lh out/ffmpeg
+          lipo -archs out/ffmpeg
+
+      - name: Comprobar arquitecturas y macOS mínimo de CADA mitad
+        run: |
+          cd out
+          ARCHS="$(lipo -archs ffmpeg)"
+          for a in arm64 x86_64; do
+            echo "$ARCHS" | grep -qw "$a" || { echo "ERROR: falta la mitad $a"; exit 1; }
+            MIN="$(otool -arch $a -l ffmpeg | awk '/LC_BUILD_VERSION/{f=1} f&&/minos/{print $2; exit}')"
+            echo "$a -> macOS mínimo $MIN"
+            [ "$MIN" = "11.0" ] || { echo "ERROR: $a exige macOS $MIN, no 11.0"; exit 1; }
+          done
+
+      - name: Que ninguna mitad se declare GPL
+        run: |
+          cd out
           ./ffmpeg -hide_banner -version | head -3
+          if ./ffmpeg -hide_banner -version | grep -qE -- '--enable-(gpl|version3|nonfree)'; then
+            echo "ERROR: arm64 declara GPL"; exit 1
+          fi
+          if arch -x86_64 /usr/bin/true 2>/dev/null; then
+            if arch -x86_64 ./ffmpeg -hide_banner -version | grep -qE -- '--enable-(gpl|version3|nonfree)'; then
+              echo "ERROR: x86_64 declara GPL"; exit 1
+            fi
+          fi
+
+      - name: Recetas reales de los paneles, en las dos arquitecturas
+        # Lo mismo que hacen Tracker (vídeo -> JPG) y Sync (audio -> PCM crudo).
+        # La mitad Intel se ejecuta con Rosetta si el runner la tiene.
+        run: |
+          cd out
+          probar() {
+            local ARQ="$1"; shift
+            local RUN="./ffmpeg"; [ "$ARQ" = "x86_64" ] && RUN="arch -x86_64 ./ffmpeg"
+            rm -rf "t-$ARQ" && mkdir "t-$ARQ"
+            $RUN -v error -y -f lavfi -i testsrc2=size=1280x720:rate=25:duration=4 \
+                 -f lavfi -i "sine=frequency=440:duration=6" \
+                 -map 0:v -map 1:a -c:v mjpeg -q:v 3 -c:a pcm_s16le "t-$ARQ/clip.mov"
+            $RUN -v error -ss 1 -i "t-$ARQ/clip.mov" -t 2 \
+                 -vf "fps=12,scale='min(640,iw)':'min(640,ih)':force_original_aspect_ratio=decrease" \
+                 -q:v 2 -y "t-$ARQ/f_%04d.jpg"
+            N=$(ls t-$ARQ/f_*.jpg | wc -l | tr -d ' ')
+            $RUN -v error -i "t-$ARQ/clip.mov" -t 5 -ac 1 -ar 8000 -map a -af highpass=f=120 \
+                 -f f32le -acodec pcm_f32le "t-$ARQ/audio.raw"
+            B=$(stat -f%z "t-$ARQ/audio.raw")
+            echo "$ARQ: Tracker $N fotogramas (esperados 24), Sync $B bytes (esperados 160000)"
+            [ "$N" = "24" ] || { echo "ERROR $ARQ: fotogramas"; exit 1; }
+            [ "$B" = "160000" ] || { echo "ERROR $ARQ: bytes de audio"; exit 1; }
+          }
+          probar arm64
+          if arch -x86_64 /usr/bin/true 2>/dev/null; then
+            probar x86_64
+          else
+            echo "AVISO: este runner no tiene Rosetta; la mitad Intel queda comprobada solo por cabecera"
+          fi
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ffmpeg-macos-arm64
+          name: ffmpeg-macos-universal
           path: |
-            ff/ffmpeg
-            ff/COPYING.LGPLv2.1
+            out/ffmpeg
+            out/COPYING.LGPLv2.1
