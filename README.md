@@ -1,10 +1,9 @@
-# The Edit Room
+# The Edit House
 
-Página de descargas de la suite de paneles para Adobe Premiere Pro.
+Web auxiliar (https://theedithouse.anoproj.com): textos legales, `versions.json` y la compilación pública de FFmpeg. **Aquí ya no se descargan los paneles**: se venden y se descargan en Lemon Squeezy (Mis pedidos), con clave de licencia.
 
-- **Web:** https://zurisaitobi.github.io/the-edit-room/
-- **Descargas:** en la pestaña [Releases](https://github.com/Zurisaitobi/the-edit-room/releases) de este repositorio, no en el propio repo (los instaladores pesan demasiado para ir como archivos normales).
-- **`versions.json`:** lo consulta cada panel para avisar de que hay una versión nueva. Lo lee `room-update.js` (pendiente de escribir).
+- **`versions.json`:** lo consulta `room-update.js` en cada panel (una vez al día) para avisar de que hay versión nueva; el botón lleva a https://app.lemonsqueezy.com/my-orders.
+- **`lanzador-mac/`:** ejecutable mínimo de los instaladores de Mac (`Instalar Room X.app`), compilado sin firmar por `.github/workflows/lanzador-mac.yml`. La firma y la notarización se hacen fuera de GitHub.
 
 ## Código fuente de cada panel
 
@@ -15,12 +14,11 @@ Vive en repositorios privados aparte, no aquí:
 - https://github.com/Zurisaitobi/room-markers
 - https://github.com/Zurisaitobi/room-sync
 
-## Actualizar una entrega nueva
+## Publicar una versión nueva
 
-1. Reconstruir el kit con `fuentes-instalador/` (ver `Documents\The Edit Room\Entregas\Suite\suite-traspaso.md`).
-2. Crear una Release nueva con un tag `kit-AAAA-MM-DD` y subir los 10 archivos (`index.html` no, ese va en `main`; los 8 ZIP individuales + el `.exe` + el `.zip` de Mac).
-3. Actualizar `versions.json` con las versiones y las URLs de esa Release.
-4. `git push`.
+1. Reconstruir y firmar con `fuentes-instalador/` (`node construir.js --firmar` y `node mac-app.js --firmar`).
+2. Subir los instaladores a cada producto de Lemon Squeezy.
+3. Poner las versiones nuevas en `versions.json` y hacer `git push`. Solo cuando ya estén subidos: si no, el aviso mandaría a descargar algo que aún no está.
 
 ## ESTE REPOSITORIO TIENE QUE SEGUIR SIENDO PÚBLICO
 
