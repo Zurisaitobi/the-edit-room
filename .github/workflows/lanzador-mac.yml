@@ -1,0 +1,50 @@
+name: Lanzador de los instaladores de Mac
+
+# Compila el ejecutable mínimo de las apps «Instalar Room X.app».
+# Universal (Apple Silicon + Intel), macOS 11 de mínimo. SIN FIRMAR: la firma y
+# la notarización se hacen fuera de GitHub, y aquí no entra ninguna clave.
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "lanzador-mac/**"
+      - ".github/workflows/lanzador-mac.yml"
+
+jobs:
+  lanzador:
+    runs-on: macos-14
+    env:
+      MACOSX_DEPLOYMENT_TARGET: "11.0"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compilar universal
+        run: |
+          mkdir -p out
+          clang -Os -Wall -Werror -arch arm64 -arch x86_64 -mmacosx-version-min=11.0 \
+            -o out/instalar lanzador-mac/lanzador.c
+          strip out/instalar
+          ls -l out/instalar
+
+      - name: Comprobar arquitecturas y macOS mínimo
+        run: |
+          ARCHS="$(lipo -archs out/instalar)"; echo "$ARCHS"
+          for a in arm64 x86_64; do
+            echo "$ARCHS" | grep -qw "$a" || { echo "ERROR: falta $a"; exit 1; }
+            MIN="$(otool -arch $a -l out/instalar | awk '/LC_BUILD_VERSION/{f=1} f&&/minos/{print $2; exit}')"
+            echo "$a -> macOS $MIN"; [ "$MIN" = "11.0" ] || exit 1
+          done
+
+      - name: Probar que lanza el script de su app
+        run: |
+          A="Prueba.app/Contents"; mkdir -p "$A/MacOS" "$A/Resources"
+          cp out/instalar "$A/MacOS/instalar"
+          printf '#!/bin/bash\necho LANZADO-OK "$0"\n' > "$A/Resources/instalar.sh"
+          "$A/MacOS/instalar" | tee r.txt; grep -q LANZADO-OK r.txt
+          arch -x86_64 "$A/MacOS/instalar" | grep -q LANZADO-OK && echo "x86_64 también"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lanzador-mac
+          path: out/instalar
