@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-09-15",
+  "actualizado": "2026-09-17",
   "descarga": "https://app.lemonsqueezy.com/my-orders",
   "paneles": [
     {
@@ -26,7 +26,7 @@
     {
       "id": "com.roomsync.panel",
       "nombre": "Room Sync",
-      "version": "1.71.0",
+      "version": "1.73.0",
       "windows": "https://app.lemonsqueezy.com/my-orders",
       "mac": "https://app.lemonsqueezy.com/my-orders"
     }
